@@ -1,4 +1,4 @@
-#!/opt/splunk/bin/python3
+
 import requests
 import json
 import urllib3
@@ -25,5 +25,5 @@ def get(path):
 scans = get("/scans")
 scan_ids = [x['id'] for x in scans.get("scans")]
 scan_name = [x['name'] for x in scans.get("scans")]
-
-print(json.dumps(get("/scans/8").get("vulnerabilities"), indent=2))
+# print(scans)
+print(json.dumps(get("/scans"),indent=2))

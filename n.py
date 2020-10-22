@@ -16,7 +16,13 @@ def api_path(path):
     return (scanner + path)
 
 
-res = requests.get(api_path("/scans"), headers=headers, verify=False)
-data = json.loads(res.text)
+def get(path):
+    res = requests.get(api_path(path), headers=headers, verify=False)
+    return json.loads(res.text)
 
-print(json.dumps(data, indent=2))
+
+scans = get("/scans")
+scan_ids = [x['id'] for x in scans.get("scans")]
+scan_name = [x['name'] for x in scans.get("scans")]
+
+print(json.dumps(get("/scans/8").get("vulnerabilities"), indent=2))

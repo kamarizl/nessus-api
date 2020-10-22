@@ -2,5 +2,5 @@
     "python.linting.pylintEnabled": true,
     "python.linting.flake8Enabled": false,
     "python.linting.enabled": true,
-    "python.pythonPath": "C:\\Users\\kamarizal\\Miniconda3\\python.exe"
+    "python.pythonPath": "/home/vagrant/miniconda3/bin/python"
 }

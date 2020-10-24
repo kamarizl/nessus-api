@@ -20,6 +20,9 @@ def fetch(path):
     r = requests.get(path, headers=headers, verify=False)
     return json.loads(r.text)
 
+def log(f):
+    # print("------")
+    print(json.dumps(f, indent=2))
 
 # start with checkpoint 0
 last_checkpoint = 0
@@ -30,12 +33,12 @@ if os.path.isfile(checkpoint_filepath):
         last_checkpoint = f.readline()
 
 # tmp hack
-# last_checkpoint = 0
+last_checkpoint = 0
 
 # request scan based on checkpoint last timestamp
 scans = fetch("/scans?last_modification_date={}".format(last_checkpoint))
 
-# update the checkpoint, so next request based on it
+# update the checkpoint for next pull
 with open(checkpoint_filepath, "w") as f:
     f.write(str(scans.get("timestamp")))
 
@@ -65,28 +68,76 @@ for scan in completed_scan:
         # enumerate all vuln
         for vuln in details.get("vulnerabilities"):
 
-            # flatten the data, append every vuln with info
+            # append every vuln with info
             info.update(vuln)
             info["scan-id"] = scan_id
             info["scan-name"] = sname
+            vuln.update(info)
 
             # update into base_vuln_placeholder
-            base_vuln_placeholder.append(info)
+            base_vuln_placeholder.append(vuln)
 
-
+print("done here")
 # get detail of the vulnerability
-for vuln in base_vuln_placeholder:
+# for vuln in base_vuln_placeholder:
 
-    full_data = fetch(
-        "/scans/{}/hosts/{}/plugins/{}".format(
-            vuln["scan-id"], vuln["host_id"], vuln["plugin_id"]
-        )
-    )
+#     full_data = fetch(
+#         "/scans/{}/hosts/{}/plugins/{}".format(
+#             vuln["scan-id"], vuln["host_id"], vuln["plugin_id"]
+#         )
+#     )
+    
+#     # plugin_output = full_data["outputs"][0]['plugin_output']
+#     risk_factor = full_data["info"]["plugindescription"]["pluginattributes"]["risk_information"]["risk_factor"]
+#     solution = full_data["info"]["plugindescription"]["pluginattributes"]["solution"]
+#     synopsis = full_data["info"]["plugindescription"]["pluginattributes"]["synopsis"]
+#     description = full_data["info"]["plugindescription"]["pluginattributes"]["description"]
+#     plugin_type = full_data["info"]["plugindescription"]["pluginattributes"]["plugin_information"]["plugin_type"]
+    
+#     for out in full_data["outputs"]:
+#         log(out)
 
-    vuln["details"] = full_data
+#     # log(full_data["info"]["plugindescription"]["pluginattributes"]["plugin_information"]["plugin_type"])
+    
+#     print("<<<<<<<<<<<<<<<<<<<")
+#     break
 
-    # add timestamp for splunk
-    vuln["timestamp"] = vuln["host_start"]    
+# print("end")
 
-    # stream to splunk
-    print(json.dumps(vuln, indent=2))
+# def item_generator(json_input, lookup_key):
+#     if isinstance(json_input, dict):
+#         for k, v in json_input.items():
+#             if k == lookup_key:
+#                 yield v
+#             else:
+#                 yield from item_generator(v, lookup_key)
+#     elif isinstance(json_input, list):
+#         for item in json_input:
+#             yield from item_generator(item, lookup_key)
+
+
+def json_extract(obj, key):
+    """Recursively fetch values from nested JSON."""
+    arr = []
+
+    def extract(obj, arr, key):
+        """Recursively search for values of key in JSON tree."""
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                if isinstance(v, (dict, list)):
+                    extract(v, arr, key)
+                elif k == key:
+                    arr.append(v)
+        elif isinstance(obj, list):
+            for item in obj:
+                extract(item, arr, key)
+        return arr
+
+    values = extract(obj, arr, key)
+    return values
+
+
+x = fetch("/scans/11/hosts/62/plugins/51192")
+print(json_extract(x, "ports"))
+
+print("end")

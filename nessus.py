@@ -115,12 +115,43 @@ for vuln in base_vuln_placeholder:
     vuln["synopsis"] = json_extract(full_data, "synopsis")[0]
     vuln["description"] = json_extract(full_data, "description")[0]
     vuln["plugin_type"] = json_extract(full_data, "plugin_type")[0]
-    vuln["cvss3_base_score"] = json_extract(full_data, "cvss3_base_score")
-    vuln["cvss_base_score"] = json_extract(full_data, "cvss_base_score")
-    vuln["cvss3_vector"] = json_extract(full_data, "cvss3_vector")
-    vuln["cvss_vector"] = json_extract(full_data, "cvss_vector")
-    # vuln["see_also"] = json_extract(full_data, "see_also")
-    
+
+    if not json_extract(full_data, "cvss3_base_score"):
+        vuln["cvss3_base_score"] = "0.0"
+    else:
+        vuln["cvss3_base_score"] = json_extract(full_data, "cvss3_base_score")[0]
+
+    if not json_extract(full_data, "cvss_base_score"):
+        vuln["cvss_base_score"] = "0.0"
+    else:
+        vuln["cvss_base_score"] = json_extract(full_data, "cvss_base_score")[0]
+
+    if not json_extract(full_data, "cvss3_vector"):
+        vuln["cvss3_vector"] = "null"
+    else:
+        vuln["cvss3_vector"] = json_extract(full_data, "cvss3_vector")[0]
+
+    if not json_extract(full_data, "cvss_vector"):
+        vuln["cvss_vector"] = "null"
+    else:
+        vuln["cvss_vector"] = json_extract(full_data, "cvss_vector")[0]
+
+    # affected port/service
+    if full_data["outputs"]:
+        for output in full_data["outputs"]:
+            vuln["ports"] = [key for key in output["ports"]]
+
+    if full_data["info"]["plugindescription"]["pluginattributes"].get("see_also"):
+        vuln["see_also"] = [
+            x
+            for x in full_data["info"]["plugindescription"]["pluginattributes"][
+                "see_also"
+            ]
+        ]
+    else:
+        vuln["see_also"] = "null"
+
     # stream to splunk
     print(json.dumps(vuln))
-    break
+
+    # break

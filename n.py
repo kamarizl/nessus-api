@@ -1,3 +1,8 @@
+# todo
+# - dont load incomplete scan
+# - create checkpoint for splunk
+
+import os, sys
 import requests
 import json
 import urllib3
@@ -21,10 +26,32 @@ def get(path):
 
 
 def all_scans():
-    scans = get("/scans")
-    scan_ids = [x["id"] for x in scans.get("scans")]
-    scan_name = [x["name"] for x in scans.get("scans")]
-    return list(zip(scan_ids, scan_name))
+    # set check point
+    script_dirpath = os.path.dirname(os.path.join(os.getcwd(), __file__))
+    checkpoint_filepath = os.path.join(script_dirpath, "checkpoint_nessus")
+
+    last_timestamp = 0
+
+    # get the last checkpoint timestamp
+    if os.path.isfile(checkpoint_filepath):
+        file = open(checkpoint_filepath, "r")
+        last_timestamp = int(file.readline())
+        file.close()
+    else:
+        pass
+
+    scans = get("/scans" + "?last_modification_date=%d" % (last_timestamp))
+    print(scans.get("timestamp"))
+
+    print(json.dumps(scans, indent=2))
+    
+    # update checkpoint
+    with open(checkpoint_filepath, 'w') as f:
+        f.write(str(scans.get("timestamp")))
+
+    # scan_ids = [x["id"] for x in scans.get("scans")]
+    # scan_name = [x["name"] for x in scans.get("scans")]
+    # return list(zip(scan_ids, scan_name))
 
 
 def get_scan_details(id):
@@ -85,4 +112,10 @@ def main():
     print(json.dumps(data, indent=2))
 
 
-main()
+def main2():
+    all_scans()
+
+
+main2()
+
+# main()

@@ -1,2 +1,3 @@
-# Nessus Pull Scan Result for Splunk
-Script to pull scan result from Nessus Essential and index it into Splunk.
+# Splunk Pull Nessus Scans
+Splunk script input to pull Nessus Essential scan result and index it into Splunk.
+

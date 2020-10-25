@@ -152,6 +152,15 @@ for vuln in base_vuln_placeholder:
         ]
     else:
         vuln["see_also"] = "null"
+    
+    # additional info on vulnerability
+    plugin_attribute = fetch("/plugins/plugin/{}".format(vuln["plugin_id"]))
+    att = plugin_attribute.get("attributes")
+    vuln["cve"] = [a.get("attribute_value") for a in att if a.get("attribute_name") == "cve"]
+    vuln["exploit_available"] = [a.get("attribute_value") for a in att if a.get("attribute_name") == "exploit_available"]
+    vuln["exploitability_ease"] = [a.get("attribute_value") for a in att if a.get("attribute_name") == "exploitability_ease"]
+    vuln["xref"] = [a.get("attribute_value") for a in att if a.get("attribute_name") == "xref"]
+    vuln["vuln_publication_date"] = [a.get("attribute_value") for a in att if a.get("attribute_name") == "vuln_publication_date"]
 
     # stream to splunk
     print(json.dumps(vuln))

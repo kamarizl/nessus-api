@@ -82,7 +82,7 @@ for scan in completed_scan:
     # get all the host in particular scan id
     hosts = fetch("/scans/{}".format(scan_id))
     host_ids = [x.get("host_id") for x in hosts.get("hosts")]
-
+ 
     # once we have all the ids, get vuln for that host
     for hostid in host_ids:
         details = fetch("/scans/{}/hosts/{}".format(scan_id, hostid))
